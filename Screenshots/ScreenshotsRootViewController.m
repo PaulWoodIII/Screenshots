@@ -228,8 +228,31 @@
     }
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    UIImage *image = [self uikitScreenshotOfCell:[tableView cellForRowAtIndexPath:indexPath]];
+    tableView.tableHeaderView = [[UIImageView alloc] initWithImage:image];
 }
 
+#pragma mark -
+#pragma mark screenshot Method is based on QA1703
+
+- (UIImage *)uikitScreenshotOfCell:(UITableViewCell *)cell
+{
+    // Create a graphics context with the target size
+    // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
+    // On iOS prior to 4, fall back to use UIGraphicsBeginImageContext
+    CGSize imageSize = [cell bounds].size;
+    if (NULL != UIGraphicsBeginImageContextWithOptions)
+        UIGraphicsBeginImageContextWithOptions(imageSize, NO, 0);
+    else
+        UIGraphicsBeginImageContext(imageSize);
+    
+    [cell.layer renderInContext:UIGraphicsGetCurrentContext()];
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+	
+    return image;
+}
 
 
 - (void)didReceiveMemoryWarning
